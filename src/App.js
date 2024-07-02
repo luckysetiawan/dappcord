@@ -22,6 +22,9 @@ function App() {
   const [account, setAccount] = useState(null);
 
   const [dappcord, setDappcord] = useState(null);
+  const [channels, setChannels] = useState([]);
+
+  const [currentChannel, setCurrentChannel] = useState(null);
 
   const loadBlockchainData = async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -40,6 +43,8 @@ function App() {
       channels.push(channel);
     }
 
+    setChannels(channels);
+
     window.ethereum.on('accountsChanged', async () => {
       window.location.reload();
     })
@@ -55,7 +60,7 @@ function App() {
 
       <main>
         <Servers />
-        <Channels />
+        <Channels provider={provider} account={account} dappcord={dappcord} channels={channels} currentChannel={currentChannel} setCurrentChannel={setCurrentChannel} />
         <Messages />
       </main>
     </div>
