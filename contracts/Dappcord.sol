@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract Dappcord is ERC721 {
+    uint256 public totalSupply;
     uint256 public totalChannels;
     address public owner;
 
@@ -14,6 +15,7 @@ contract Dappcord is ERC721 {
     }
 
     mapping(uint256 => Channel) public channels;
+    mapping(uint256 => mapping(address => bool)) public hasJoined;
 
     modifier onlyOwner() {
         require(msg.sender == owner);
@@ -33,6 +35,20 @@ contract Dappcord is ERC721 {
     ) public onlyOwner {
         totalChannels++;
         channels[totalChannels] = Channel(totalChannels, _name, _cost);
+    }
+
+    function mint(uint256 _id) public payable {
+        require(_id != 0);
+        require(_id <= totalChannels);
+        require(hasJoined[_id][msg.sender] == false);
+        require(msg.value >= channels[_id].cost);
+
+        // Join channel
+        hasJoined[_id][msg.sender] = true;
+
+        // Mint NFT
+        totalSupply++;
+        _safeMint(msg.sender, totalSupply);
     }
 
     function getChannel(uint256 _id) public view returns (Channel memory) {

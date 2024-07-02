@@ -54,4 +54,29 @@ describe("Dappcord", function () {
       expect(channel.cost).to.equal(tokens(1));
     })
   })
+
+  describe("Joining Channels", () => {
+    const ID = 1;
+    const AMOUNT = tokens(1);
+
+    beforeEach(async () => {
+      const transaction = await dappcord.connect(user).mint(ID, { value: AMOUNT });
+      await transaction.wait();
+    })
+
+    it("Joins the user", async () => {
+      let result = await dappcord.hasJoined(ID, user.address);
+      expect(result).to.equal(true);
+    })
+
+    it("Increases total supply", async () => {
+      let result = await dappcord.totalSupply();
+      expect(result).to.equal(ID);
+    })
+
+    it("Updates the contract balance", async () => {
+      let result = await ethers.provider.getBalance(dappcord.getAddress());
+      expect(result).to.equal(AMOUNT);
+    })
+  })
 })
