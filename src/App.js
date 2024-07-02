@@ -25,6 +25,7 @@ function App() {
   const [channels, setChannels] = useState([]);
 
   const [currentChannel, setCurrentChannel] = useState(null);
+  const [messages, setMessages] = useState([]);
 
   const loadBlockchainData = async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -52,6 +53,25 @@ function App() {
 
   useEffect(() => {
     loadBlockchainData();
+
+    // https://socket.io/how-to/use-with-react
+    socket.on("connect", ()=> {
+      socket.emit("get messages");
+    })
+
+    socket.on("new message", (messages)=> {
+      setMessages(messages);
+    })
+
+    socket.on("get messages", (messages)=> {
+      setMessages(messages);
+    })
+
+    return () => {
+      socket.off("connect");
+      socket.off("new message");
+      socket.off("get messages");
+    }
   }, []);
 
   return (
@@ -61,7 +81,7 @@ function App() {
       <main>
         <Servers />
         <Channels provider={provider} account={account} dappcord={dappcord} channels={channels} currentChannel={currentChannel} setCurrentChannel={setCurrentChannel} />
-        <Messages />
+        <Messages account={account} messages={messages} currentChannel={currentChannel} />
       </main>
     </div>
   );
